@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(req: NextRequest) {
+export default function proxy(req: NextRequest) {
   // If no password is configured, the app remains open (useful for local development)
   const appPassword = process.env.APP_PASSWORD;
   if (!appPassword) {
