@@ -50,7 +50,7 @@ export default function LearningPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Ollama did not respond');
+        setError(data.error || 'AI did not respond');
       } else {
         setMessages((prev) => [...prev, { role: 'assistant', content: data.answer }]);
       }
@@ -81,7 +81,7 @@ export default function LearningPage() {
               Learning Assistant
             </h1>
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              Powered by local Ollama · Beginner-friendly bug bounty knowledge
+              Powered by BugFlow AI · Beginner-friendly bug bounty knowledge
             </p>
           </div>
         </div>
@@ -162,7 +162,7 @@ export default function LearningPage() {
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
               <Loader2 size={14} className="animate-spin" style={{ color: 'var(--accent)' }} />
               <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                Thinking with Ollama…
+                Thinking with AI…
               </span>
             </div>
           </div>
@@ -204,7 +204,7 @@ export default function LearningPage() {
           </button>
         </form>
         <p className="mt-2 text-xs text-center" style={{ color: 'var(--text-muted)' }}>
-          All responses are from your local Ollama model. No data sent externally.
+          All responses are processed by your configured AI provider.
         </p>
       </div>
     </div>

@@ -128,7 +128,7 @@ export default function ReconPage() {
               Cancel
             </button>
           </div>
-          {saving && <AiLoadingState message="Ollama is analyzing your recon output…" />}
+          {saving && <AiLoadingState message="AI is analyzing your recon output…" />}
         </div>
       )}
 

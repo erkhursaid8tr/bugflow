@@ -276,7 +276,7 @@ export default function NewProgramPage() {
           <div className="rounded-xl px-5 py-4"
             style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.2)' }}>
             <p className="text-sm font-medium" style={{ color: 'var(--accent)' }}>
-              🤖 Ollama is generating your roadmap…
+              🤖 AI is generating your roadmap…
             </p>
             <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
               This may take 30–120 seconds depending on your model. The program is saved — you can navigate away and come back.

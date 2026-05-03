@@ -396,7 +396,7 @@ export default function RoadmapClient({ phases: initialPhases, programId }: Road
                   </button>
                   {isGenerating && (
                     <p className="text-xs ai-loading" style={{ color: 'var(--accent)' }}>
-                      Ollama is generating tasks for this phase (~15-30 seconds)…
+                      AI is generating tasks for this phase (~15-30 seconds)…
                     </p>
                   )}
                 </div>

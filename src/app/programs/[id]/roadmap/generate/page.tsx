@@ -56,7 +56,7 @@ export default function GenerateRoadmapPage() {
       <div className="rounded-xl p-4 mb-6"
         style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)' }}>
         <p className="text-xs" style={{ color: 'var(--yellow)' }}>
-          ⚠ Make sure Ollama is running. The scope analysis takes about 15-30 seconds.
+          ⚠ The AI scope analysis takes about 15-30 seconds.
           Any existing roadmap for this program will be replaced.
         </p>
       </div>

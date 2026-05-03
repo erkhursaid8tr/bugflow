@@ -2,7 +2,7 @@ interface AiLoadingStateProps {
   message?: string;
 }
 
-export default function AiLoadingState({ message = 'Thinking with local Ollama…' }: AiLoadingStateProps) {
+export default function AiLoadingState({ message = 'Thinking with AI…' }: AiLoadingStateProps) {
   return (
     <div
       className="flex items-center gap-3 rounded-xl px-5 py-4"

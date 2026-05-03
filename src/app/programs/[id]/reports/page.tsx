@@ -222,7 +222,7 @@ export default function ReportsPage() {
               </div>
             </>
           )}
-          {generating && <AiLoadingState message="Ollama is generating your vulnerability report…" />}
+          {generating && <AiLoadingState message="AI is generating your vulnerability report…" />}
         </div>
       )}
 
