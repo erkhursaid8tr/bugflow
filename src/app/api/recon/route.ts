@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
 import { askOllama } from '@/lib/ollama';
 import { buildReconAnalysisPrompt } from '@/lib/ai-prompts';
 import { safeParseJson } from '@/lib/utils';
