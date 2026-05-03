@@ -28,7 +28,7 @@ export default async function ScopePage({ params }: PageProps) {
   ];
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 md:p-8 max-w-4xl">
       <div className="mb-6">
         <Link href={`/programs/${id}`} className="text-xs hover:opacity-80 mb-1 block"
           style={{ color: 'var(--text-muted)' }}>← {program.name}</Link>

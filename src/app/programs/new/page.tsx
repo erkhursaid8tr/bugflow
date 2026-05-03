@@ -96,7 +96,7 @@ export default function NewProgramPage() {
   const labelStyle = { color: 'var(--text-secondary)', fontSize: '0.8125rem', fontWeight: 500 };
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 md:p-8 max-w-4xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
           Add Program

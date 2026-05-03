@@ -82,7 +82,7 @@ export default function TargetsPage() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Targets</h1>
@@ -145,9 +145,9 @@ export default function TargetsPage() {
             <Plus size={14} /> Add Target
           </button>} />
       ) : (
-        <div className="rounded-xl overflow-hidden"
+        <div className="rounded-xl overflow-x-auto"
           style={{ border: '1px solid var(--border)' }}>
-          <table className="w-full text-sm">
+          <table className="w-full text-sm min-w-[600px]">
             <thead>
               <tr style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
                 {['Name', 'URL', 'Type', 'Priority', 'Status', ''].map((h) => (

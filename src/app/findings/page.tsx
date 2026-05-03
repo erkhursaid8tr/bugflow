@@ -14,7 +14,7 @@ export default async function GlobalFindingsPage() {
   });
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6">
         <h1 className="flex items-center gap-2 text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
           <Bug size={22} /> All Findings

@@ -13,7 +13,7 @@ export default async function GlobalTargetsPage() {
   });
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6">
         <h1 className="flex items-center gap-2 text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
           <Target size={22} /> All Targets
@@ -33,8 +33,8 @@ export default async function GlobalTargetsPage() {
             Go to Programs
           </Link>} />
       ) : (
-        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
-          <table className="w-full text-sm">
+        <div className="rounded-xl overflow-x-auto" style={{ border: '1px solid var(--border)' }}>
+          <table className="w-full text-sm min-w-[600px]">
             <thead>
               <tr style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
                 {['Name', 'Program', 'Type', 'Priority', 'Status'].map((h) => (

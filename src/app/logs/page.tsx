@@ -98,7 +98,7 @@ export default function GlobalLogsPage() {
   const labelStyle = { color: 'var(--text-secondary)', fontSize: '0.8125rem', fontWeight: 500 as const, display: 'block' as const, marginBottom: '0.375rem' };
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 md:p-8 max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>

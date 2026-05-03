@@ -89,7 +89,7 @@ export default function ProgramLogsPage() {
   };
 
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="p-4 md:p-8 max-w-3xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <Link href={`/programs/${programId}`} className="text-xs hover:opacity-80 mb-1 block"

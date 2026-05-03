@@ -61,7 +61,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
   ];
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       {/* Program header */}
       <div className="mb-6 flex items-start justify-between gap-4">
         <div className="min-w-0">

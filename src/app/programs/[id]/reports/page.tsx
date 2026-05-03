@@ -158,7 +158,7 @@ export default function ReportsPage() {
   );
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <Link href={`/programs/${programId}`} className="text-xs hover:opacity-80 mb-1 block"

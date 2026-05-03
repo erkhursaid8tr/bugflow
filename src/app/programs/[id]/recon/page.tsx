@@ -73,7 +73,7 @@ export default function ReconPage() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Recon Notes</h1>

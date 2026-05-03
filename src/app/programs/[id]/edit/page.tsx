@@ -121,14 +121,14 @@ export default function EditProgramPage() {
 
   if (fetching) {
     return (
-      <div className="p-8 flex items-center gap-2" style={{ color: 'var(--text-muted)' }}>
+      <div className="p-4 md:p-8 flex items-center gap-2" style={{ color: 'var(--text-muted)' }}>
         <Loader2 size={16} className="animate-spin" /> Loading program…
       </div>
     );
   }
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 md:p-8 max-w-4xl">
       <div className="mb-6">
         <Link href={`/programs/${id}`} className="flex items-center gap-1.5 text-xs mb-2 hover:opacity-80"
           style={{ color: 'var(--text-muted)' }}>

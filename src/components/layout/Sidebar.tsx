@@ -14,6 +14,7 @@ import {
   Settings,
   CalendarDays,
   ShieldCheck,
+  PanelLeftClose,
 } from 'lucide-react';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 
@@ -27,7 +28,7 @@ const navItems = [
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen = true, onClose }: { isOpen?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
 
   function isActive(href: string) {
@@ -36,7 +37,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 flex w-60 flex-col"
+    <aside className={`fixed inset-y-0 left-0 z-30 flex w-60 flex-col transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       style={{ background: 'var(--bg-surface)', borderRight: '1px solid var(--border)' }}>
       {/* Logo + theme toggle */}
       <div className="flex items-center justify-between px-5 py-5" style={{ borderBottom: '1px solid var(--border)' }}>
@@ -54,7 +55,14 @@ export default function Sidebar() {
             </p>
           </div>
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <div className="hidden md:block"><ThemeToggle /></div>
+          {onClose && (
+            <button onClick={onClose} className="p-1 hover:opacity-80 transition-opacity" title="Toggle Sidebar">
+              <PanelLeftClose size={18} style={{ color: 'var(--text-muted)' }} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Navigation */}

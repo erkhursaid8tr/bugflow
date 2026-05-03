@@ -30,7 +30,7 @@ export default function GenerateRoadmapPage() {
   }
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="p-4 md:p-8 max-w-2xl">
       <h1 className="flex items-center gap-2 text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
         <Map size={20} /> Initialize AI Roadmap
       </h1>
