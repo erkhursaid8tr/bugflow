@@ -73,6 +73,7 @@ export default function ProgramLogsPage() {
   }
 
   async function deleteLog(logId: string) {
+    if (!window.confirm('Are you sure you want to delete this log?')) return;
     await fetch(`/api/daily-logs/${logId}`, { method: 'DELETE' });
     setLogs((prev) => prev.filter((l) => l.id !== logId));
   }

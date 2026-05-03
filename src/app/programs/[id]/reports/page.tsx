@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   FileText, Plus, Loader2, Sparkles, Copy, Download, Check,
-  ChevronDown, ChevronUp, Edit2,
+  ChevronDown, ChevronUp, Edit2, Trash2,
 } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import EmptyState from '@/components/ui/EmptyState';
@@ -119,6 +119,12 @@ export default function ReportsPage() {
       body: JSON.stringify({ status }),
     });
     setReports((prev) => prev.map((r) => (r.id === reportId ? { ...r, status } : r)));
+  }
+
+  async function deleteReport(reportId: string) {
+    if (!window.confirm('Are you sure you want to delete this report?')) return;
+    await fetch(`/api/reports/${reportId}`, { method: 'DELETE' });
+    setReports((prev) => prev.filter((r) => r.id !== reportId));
   }
 
   function copyToClipboard(reportId: string, content: string) {
@@ -266,6 +272,9 @@ export default function ReportsPage() {
                       style={{ background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
                       {REPORT_STATUSES.map((s) => <option key={s} value={s}>{statusLabel(s)}</option>)}
                     </select>
+                    <button onClick={() => deleteReport(report.id)} className="hover:opacity-80 p-1">
+                      <Trash2 size={14} style={{ color: 'var(--text-muted)' }} />
+                    </button>
                     {isOpen ? <ChevronUp size={16} style={{ color: 'var(--text-muted)' }} /> : <ChevronDown size={16} style={{ color: 'var(--text-muted)' }} />}
                   </div>
                 </button>

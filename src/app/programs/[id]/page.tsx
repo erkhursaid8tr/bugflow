@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import StatusBadge from '@/components/ui/StatusBadge';
+import DeleteButton from '@/components/ui/DeleteButton';
 import { formatDateTime, platformColor, truncate } from '@/lib/utils';
 import {
   ExternalLink,
@@ -81,6 +82,12 @@ export default async function ProgramDetailPage({ params }: PageProps) {
           )}
         </div>
         <div className="flex items-center gap-3 shrink-0">
+          <DeleteButton
+            endpoint={`/api/programs/${id}`}
+            itemName="Program"
+            redirectUrl="/programs"
+            variant="button"
+          />
           <Link
             href={`/programs/${id}/edit`}
             className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"

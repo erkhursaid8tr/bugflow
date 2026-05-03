@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Loader2, Sparkles, Bug } from 'lucide-react';
+import { Plus, Loader2, Sparkles, Bug, Trash2 } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import EmptyState from '@/components/ui/EmptyState';
 import { severityColor, statusLabel } from '@/lib/utils';
@@ -97,6 +97,12 @@ export default function FindingsPage() {
       body: JSON.stringify({ status }),
     });
     setFindings((prev) => prev.map((f) => (f.id === findingId ? { ...f, status } : f)));
+  }
+
+  async function deleteFinding(findingId: string) {
+    if (!window.confirm('Are you sure you want to delete this finding?')) return;
+    await fetch(`/api/findings/${findingId}`, { method: 'DELETE' });
+    setFindings((prev) => prev.filter((f) => f.id !== findingId));
   }
 
   const inputStyle = {
@@ -207,6 +213,9 @@ export default function FindingsPage() {
                     style={{ background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
                     {STATUSES.map((s) => <option key={s} value={s}>{statusLabel(s)}</option>)}
                   </select>
+                  <button onClick={(e) => { e.stopPropagation(); deleteFinding(f.id); }} className="hover:opacity-80 p-1">
+                    <Trash2 size={14} style={{ color: 'var(--text-muted)' }} />
+                  </button>
                 </div>
               </button>
 

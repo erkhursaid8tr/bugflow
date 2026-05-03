@@ -66,6 +66,7 @@ export default function TargetsPage() {
   }
 
   async function deleteTarget(targetId: string) {
+    if (!window.confirm('Are you sure you want to delete this target?')) return;
     await fetch(`/api/targets/${targetId}`, { method: 'DELETE' });
     setTargets((prev) => prev.filter((t) => t.id !== targetId));
   }
