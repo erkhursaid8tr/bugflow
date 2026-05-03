@@ -12,8 +12,21 @@ interface ConnectionResult {
 export default function SettingsPage() {
   const [testing, setTesting] = useState(false);
   const [result, setResult] = useState<ConnectionResult | null>(null);
-  const [ollamaUrl] = useState('http://localhost:11434');
-  const [model] = useState('qwen2.5-coder:7b');
+  const [provider, setProvider] = useState('Loading...');
+  const [url, setUrl] = useState('...');
+  const [model, setModel] = useState('...');
+
+  async function fetchConfig() {
+    try {
+      const res = await fetch('/api/ai/config');
+      const data = await res.json();
+      setProvider(data.provider);
+      setUrl(data.url);
+      setModel(data.model);
+    } catch {
+      setProvider('Error');
+    }
+  }
 
   async function testConnection() {
     setTesting(true);
@@ -30,8 +43,7 @@ export default function SettingsPage() {
   }
 
   useEffect(() => {
-    // Auto-test on mount
-    testConnection();
+    fetchConfig().then(() => testConnection());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -60,24 +72,24 @@ export default function SettingsPage() {
           Settings
         </h1>
         <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
-          Configure your local BugFlow workspace.
+          Configure your BugFlow workspace.
         </p>
       </div>
 
       <div className="space-y-5">
-        {/* Ollama connection */}
+        {/* AI connection */}
         <div className="rounded-xl p-5 space-y-4" style={cardStyle}>
           <h2 className="flex items-center gap-2 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
             <Wifi size={16} style={{ color: 'var(--accent)' }} />
-            Ollama Configuration
+            {provider} Configuration
           </h2>
 
           <div>
-            <label className="block mb-1.5" style={labelStyle}>Ollama Base URL</label>
-            <span style={valueStyle}>{ollamaUrl}</span>
+            <label className="block mb-1.5" style={labelStyle}>API Endpoint</label>
+            <span style={valueStyle}>{url}</span>
             <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
               Set via <code className="rounded px-1"
-                style={{ background: 'var(--bg-base)', color: 'var(--text-secondary)' }}>OLLAMA_BASE_URL</code> in <code
+                style={{ background: 'var(--bg-base)', color: 'var(--text-secondary)' }}>{provider === 'OpenRouter' ? 'OPENROUTER_API_KEY' : 'OLLAMA_BASE_URL'}</code> in <code
                 className="rounded px-1" style={{ background: 'var(--bg-base)', color: 'var(--text-secondary)' }}>.env</code>
             </p>
           </div>
@@ -87,9 +99,8 @@ export default function SettingsPage() {
             <span style={valueStyle}>{model}</span>
             <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
               Set via <code className="rounded px-1"
-                style={{ background: 'var(--bg-base)', color: 'var(--text-secondary)' }}>OLLAMA_MODEL</code> in <code
+                style={{ background: 'var(--bg-base)', color: 'var(--text-secondary)' }}>{provider === 'OpenRouter' ? 'OPENROUTER_MODEL' : 'OLLAMA_MODEL'}</code> in <code
                 className="rounded px-1" style={{ background: 'var(--bg-base)', color: 'var(--text-secondary)' }}>.env</code>.
-              Restart the dev server after changing.
             </p>
           </div>
 
@@ -109,7 +120,7 @@ export default function SettingsPage() {
               )}
               <div>
                 <p className="text-sm font-medium" style={{ color: result.success ? '#34d399' : '#f87171' }}>
-                  {result.success ? 'Ollama connected' : 'Cannot reach Ollama'}
+                  {result.success ? `${provider} connected` : `Cannot reach ${provider}`}
                 </p>
                 <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                   {result.message}
@@ -120,7 +131,7 @@ export default function SettingsPage() {
 
           <button
             onClick={testConnection}
-            disabled={testing}
+            disabled={testing || provider === 'Loading...'}
             className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-opacity hover:opacity-80 disabled:opacity-50"
             style={cardStyle}
           >
@@ -130,7 +141,7 @@ export default function SettingsPage() {
               <RefreshCw size={15} style={{ color: 'var(--accent)' }} />
             )}
             <span style={{ color: 'var(--text-secondary)' }}>
-              {testing ? 'Testing connection…' : 'Test Ollama Connection'}
+              {testing ? 'Testing connection…' : `Test ${provider} Connection`}
             </span>
           </button>
         </div>
@@ -142,10 +153,10 @@ export default function SettingsPage() {
             Database
           </h2>
           <div>
-            <label className="block mb-1.5" style={labelStyle}>Location</label>
-            <span style={valueStyle}>prisma/dev.db (SQLite — local only)</span>
+            <label className="block mb-1.5" style={labelStyle}>Provider</label>
+            <span style={valueStyle}>PostgreSQL (Vercel)</span>
             <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-              All data stays on this machine. No cloud sync. No telemetry.
+              Your data is stored securely in the cloud via Vercel Postgres.
             </p>
           </div>
         </div>
@@ -172,30 +183,6 @@ export default function SettingsPage() {
                 The AI system prompt enforces safe, authorized-testing-only guidance. This cannot be disabled.
               </p>
             </div>
-          </div>
-        </div>
-
-        {/* Setup instructions */}
-        <div className="rounded-xl p-5" style={cardStyle}>
-          <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
-            Ollama Setup
-          </h2>
-          <div className="space-y-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
-            <p>If Ollama is not running, start it with:</p>
-            <pre className="rounded-lg px-3 py-2.5 font-mono"
-              style={{ background: 'var(--bg-base)', border: '1px solid var(--border)', color: '#34d399' }}>
-              ollama serve
-            </pre>
-            <p>To pull the recommended model:</p>
-            <pre className="rounded-lg px-3 py-2.5 font-mono"
-              style={{ background: 'var(--bg-base)', border: '1px solid var(--border)', color: '#34d399' }}>
-              ollama pull qwen2.5-coder:7b
-            </pre>
-            <p>To use a different model, update <code className="rounded px-1"
-              style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>OLLAMA_MODEL</code> in{' '}
-              <code className="rounded px-1"
-                style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>.env</code> and restart.
-            </p>
           </div>
         </div>
       </div>
