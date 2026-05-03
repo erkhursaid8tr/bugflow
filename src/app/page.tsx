@@ -1,65 +1,260 @@
-import Image from "next/image";
+import { prisma } from '@/lib/prisma';
+import Link from 'next/link';
+import {
+  FolderKanban,
+  Bug,
+  Target,
+  FileText,
+  CalendarDays,
+  ArrowRight,
+  TrendingUp,
+  Clock,
+} from 'lucide-react';
+import StatCard from '@/components/ui/StatCard';
+import StatusBadge from '@/components/ui/StatusBadge';
+import { formatDateTime, truncate } from '@/lib/utils';
 
-export default function Home() {
+export default async function DashboardPage() {
+  const [programs, findings, targets, reports, logs] = await Promise.all([
+    prisma.program.findMany({ orderBy: { updatedAt: 'desc' } }),
+    prisma.finding.findMany({ orderBy: { updatedAt: 'desc' }, take: 5 }),
+    prisma.target.count(),
+    prisma.report.count(),
+    prisma.dailyLog.findMany({ orderBy: { date: 'desc' }, take: 3 }),
+  ]);
+
+  const activePrograms = programs.filter((p) => p.status === 'ACTIVE');
+  const confirmedFindings = await prisma.finding.count({
+    where: { status: { in: ['CONFIRMED', 'REPORT_DRAFTED', 'REPORTED', 'PAID'] } },
+  });
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="p-8">
+      {/* Header */}
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            Dashboard
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
+            Your local bug bounty workspace — all data stays on this machine.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <Link
+          href="/programs/new"
+          className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          style={{ background: 'linear-gradient(135deg, #0ea5e9, #7c3aed)' }}
+        >
+          <FolderKanban size={16} />
+          New Program
+        </Link>
+      </div>
+
+      {/* Safety banner */}
+      <div
+        className="mb-8 flex items-start gap-3 rounded-xl px-5 py-4"
+        style={{
+          background: 'rgba(251,191,36,0.08)',
+          border: '1px solid rgba(251,191,36,0.25)',
+        }}
+      >
+        <span className="text-base">⚠️</span>
+        <div>
+          <p className="text-sm font-semibold" style={{ color: '#fbbf24' }}>
+            Authorized Testing Only
+          </p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            This tool is for legal, authorized bug bounty and penetration testing work only. Always confirm
+            you have explicit permission before testing any target. Never test out-of-scope assets.
+          </p>
         </div>
-      </main>
+      </div>
+
+      {/* Stat cards */}
+      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
+        <StatCard
+          label="Total Programs"
+          value={programs.length}
+          icon={<FolderKanban size={20} />}
+          accent="#38bdf8"
+        />
+        <StatCard
+          label="Active Programs"
+          value={activePrograms.length}
+          icon={<TrendingUp size={20} />}
+          accent="#34d399"
+        />
+        <StatCard
+          label="Targets"
+          value={targets}
+          icon={<Target size={20} />}
+          accent="#a78bfa"
+        />
+        <StatCard
+          label="Confirmed Findings"
+          value={confirmedFindings}
+          icon={<Bug size={20} />}
+          accent="#f87171"
+        />
+        <StatCard
+          label="Reports"
+          value={reports}
+          icon={<FileText size={20} />}
+          accent="#fbbf24"
+        />
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Programs */}
+        <div
+          className="rounded-xl"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+        >
+          <div
+            className="flex items-center justify-between px-5 py-4"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            <h2 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+              Programs
+            </h2>
+            <Link href="/programs" className="flex items-center gap-1 text-xs hover:opacity-80"
+              style={{ color: 'var(--accent)' }}>
+              View all <ArrowRight size={12} />
+            </Link>
+          </div>
+          <div className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
+            {programs.slice(0, 5).map((prog) => (
+              <Link
+                key={prog.id}
+                href={`/programs/${prog.id}`}
+                className="flex items-center justify-between px-5 py-3.5 hover:opacity-80 transition-opacity"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                    {prog.name}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                    {prog.platform}
+                  </p>
+                </div>
+                <StatusBadge status={prog.status} size="sm" />
+              </Link>
+            ))}
+            {programs.length === 0 && (
+              <div className="px-5 py-8 text-center">
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                  No programs yet.{' '}
+                  <Link href="/programs/new" style={{ color: 'var(--accent)' }}>
+                    Add your first program →
+                  </Link>
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Recent Findings */}
+        <div
+          className="rounded-xl"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+        >
+          <div
+            className="flex items-center justify-between px-5 py-4"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            <h2 className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+              Recent Findings
+            </h2>
+            <Link href="/findings" className="flex items-center gap-1 text-xs hover:opacity-80"
+              style={{ color: 'var(--accent)' }}>
+              View all <ArrowRight size={12} />
+            </Link>
+          </div>
+          <div className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
+            {findings.map((f) => (
+              <div key={f.id} className="px-5 py-3.5">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                    {truncate(f.title, 50)}
+                  </p>
+                  <StatusBadge status={f.severity} size="sm" />
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <StatusBadge status={f.status} size="sm" />
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    {formatDateTime(f.updatedAt)}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {findings.length === 0 && (
+              <div className="px-5 py-8 text-center">
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                  No findings yet. Start testing!
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Daily Logs */}
+        <div
+          className="rounded-xl lg:col-span-2"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+        >
+          <div
+            className="flex items-center justify-between px-5 py-4"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            <h2 className="flex items-center gap-2 font-semibold" style={{ color: 'var(--text-primary)' }}>
+              <CalendarDays size={16} />
+              Recent Daily Logs
+            </h2>
+            <Link href="/logs" className="flex items-center gap-1 text-xs hover:opacity-80"
+              style={{ color: 'var(--accent)' }}>
+              View all <ArrowRight size={12} />
+            </Link>
+          </div>
+          {logs.length === 0 ? (
+            <div className="px-5 py-8 text-center">
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                No logs yet.{' '}
+                <Link href="/logs" style={{ color: 'var(--accent)' }}>
+                  Log today&apos;s work →
+                </Link>
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
+              {logs.map((log) => (
+                <div key={log.id} className="px-5 py-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Clock size={12} style={{ color: 'var(--text-muted)' }} />
+                    <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
+                      {formatDateTime(log.date)}
+                    </span>
+                    {log.timeSpent && (
+                      <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                        • {log.timeSpent}
+                      </span>
+                    )}
+                  </div>
+                  {log.whatTested && (
+                    <p className="text-sm" style={{ color: 'var(--text-primary)' }}>
+                      {truncate(log.whatTested, 100)}
+                    </p>
+                  )}
+                  {log.whatFound && (
+                    <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                      Found: {truncate(log.whatFound, 80)}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

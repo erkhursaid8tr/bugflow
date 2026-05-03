@@ -1,0 +1,294 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────
+// Program — a bug bounty program the user is working on
+// ─────────────────────────────────────────────
+model Program {
+  id                String    @id @default(cuid())
+  name              String
+  platform          String    // HackerOne, Bugcrowd, Intigriti, YesWeHack, Private, Other
+  programUrl        String    @default("")
+  rawProgramText    String    @default("")  // Full pasted program page
+  inScope           String    @default("")
+  outOfScope        String    @default("")
+  allowedTesting    String    @default("")
+  forbiddenTesting  String    @default("")
+  rateLimits        String    @default("")
+  rewardInfo        String    @default("")
+  notes             String    @default("")
+  aiScopeSummary    String    @default("")
+  aiSafetySummary   String    @default("")
+  status            String    @default("NOT_STARTED") // NOT_STARTED, ACTIVE, PAUSED, COMPLETED, ARCHIVED
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  scopeItems        ScopeItem[]
+  targets           Target[]
+  roadmapPhases     RoadmapPhase[]
+  reconNotes        ReconNote[]
+  findings          Finding[]
+  dailyLogs         DailyLog[]
+  aiConversations   AiConversation[]
+  decisionLogs      DecisionLog[]
+}
+
+// ─────────────────────────────────────────────
+// ScopeItem — individual parsed scope entries
+// ─────────────────────────────────────────────
+model ScopeItem {
+  id          String   @id @default(cuid())
+  programId   String
+  type        String   // IN_SCOPE, OUT_OF_SCOPE, ALLOWED, FORBIDDEN, EXCLUSION, NOTE
+  value       String
+  description String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  program     Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────
+// Target — individual assets being tested
+// ─────────────────────────────────────────────
+model Target {
+  id        String   @id @default(cuid())
+  programId String
+  name      String
+  url       String   @default("")
+  type      String   @default("WEB")    // WEB, API, MOBILE, CLOUD, OTHER
+  priority  String   @default("MEDIUM") // HIGH, MEDIUM, LOW, SKIP
+  status    String   @default("NOT_STARTED") // NOT_STARTED, IN_PROGRESS, INTERESTING, DONE, SKIPPED
+  source    String   @default("MANUAL") // MANUAL, RECON, AI_SUGGESTION
+  notes     String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  findings  Finding[]
+  reconNotes ReconNote[]
+}
+
+// ─────────────────────────────────────────────
+// RoadmapPhase — a major phase in the testing roadmap
+// ─────────────────────────────────────────────
+model RoadmapPhase {
+  id                  String   @id @default(cuid())
+  programId           String
+  title               String
+  priority            String   @default("MEDIUM") // CRITICAL, HIGH, MEDIUM, LOW
+  status              String   @default("LOCKED") // LOCKED, TODO, IN_PROGRESS, DONE, SKIPPED
+  isGenerated         Boolean  @default(false)     // false = shell (title only), true = AI-generated details
+  order               Int      @default(0)
+  goal                String   @default("")
+  whyItMatters        String   @default("")
+  manualApproach      String   @default("")
+  recommendedTools    String   @default("")
+  inputsToCollect     String   @default("")
+  whatToLookFor       String   @default("")
+  possibleBugClasses  String   @default("")
+  safeValidationSteps String   @default("")
+  notesToSave         String   @default("")
+  completionCriteria  String   @default("")
+  safetyWarnings      String   @default("")
+  aiQuestions         String   @default("")
+  userNotes           String   @default("")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  program   Program       @relation(fields: [programId], references: [id], onDelete: Cascade)
+  tasks     RoadmapTask[]
+}
+
+// ─────────────────────────────────────────────
+// RoadmapTask — individual tasks within a phase
+// ─────────────────────────────────────────────
+model RoadmapTask {
+  id                 String   @id @default(cuid())
+  phaseId            String
+  title              String
+  description        String   @default("")
+  stepByStepGuide    String   @default("")
+  commands           String   @default("")
+  suggestedTools     String   @default("")
+  expectedOutput     String   @default("")
+  possibleBugClasses String   @default("")
+  safetyNotes        String   @default("")
+  completionCriteria String   @default("")
+  status             String   @default("TODO") // TODO, IN_PROGRESS, DONE, SKIPPED
+  notes              String   @default("")
+  order              Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  phase RoadmapPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────
+// ReconNote — pasted tool output + AI analysis
+// ─────────────────────────────────────────────
+model ReconNote {
+  id                  String   @id @default(cuid())
+  programId           String
+  targetId            String?
+  title               String
+  toolName            String   @default("manual notes")
+  rawOutput           String   @default("")
+  aiSummary           String   @default("")
+  interestingAssets   String   @default("")
+  interestingEndpoints String  @default("")
+  technologies        String   @default("")
+  suggestedNextSteps  String   @default("")
+  whatToAvoid         String   @default("")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+  target  Target? @relation(fields: [targetId], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// Finding — a potential or confirmed vulnerability
+// ─────────────────────────────────────────────
+model Finding {
+  id                  String   @id @default(cuid())
+  programId           String
+  targetId            String?
+  reconNoteId         String?
+  title               String
+  vulnerabilityType   String   @default("Other")
+  endpoint            String   @default("")
+  severity            String   @default("MEDIUM") // INFORMATIONAL, LOW, MEDIUM, HIGH, CRITICAL
+  status              String   @default("IDEA")   // IDEA, TESTING, INTERESTING, NEEDS_MORE_EVIDENCE, CONFIRMED, REPORT_DRAFTED, REPORTED, DUPLICATE, INFORMATIVE, REJECTED, FIXED, PAID
+  description         String   @default("")
+  stepsTested         String   @default("")
+  evidenceSummary     String   @default("")
+  impact              String   @default("")
+  aiValidation        String   @default("")
+  programRuleConcerns String   @default("")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  program   Program    @relation(fields: [programId], references: [id], onDelete: Cascade)
+  target    Target?    @relation(fields: [targetId], references: [id])
+  evidence  Evidence[]
+  reports   Report[]
+}
+
+// ─────────────────────────────────────────────
+// Evidence — proof attached to a finding
+// ─────────────────────────────────────────────
+model Evidence {
+  id        String   @id @default(cuid())
+  findingId String
+  type      String   @default("TEXT_NOTE") // SCREENSHOT, REQUEST, RESPONSE, TEXT_NOTE, FILE, VIDEO_LINK, OTHER
+  title     String
+  content   String   @default("")
+  filePath  String?
+  redacted  Boolean  @default(false)
+  notes     String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  finding Finding @relation(fields: [findingId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────
+// Report — generated vulnerability report
+// ─────────────────────────────────────────────
+model Report {
+  id           String    @id @default(cuid())
+  findingId    String
+  title        String
+  style        String    @default("PROFESSIONAL") // HACKERONE, BUGCROWD, PROFESSIONAL, SHORT
+  content      String    @default("") // Full Markdown report
+  status       String    @default("DRAFT") // DRAFT, SUBMITTED, ACCEPTED, REJECTED, DUPLICATE, PAID
+  submittedAt  DateTime?
+  outcomeNotes String    @default("")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  finding Finding @relation(fields: [findingId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────
+// DailyLog — work session notes
+// ─────────────────────────────────────────────
+model DailyLog {
+  id          String   @id @default(cuid())
+  programId   String?
+  date        DateTime @default(now())
+  timeSpent   String   @default("")
+  whatTested  String   @default("")
+  toolsUsed   String   @default("")
+  whatFound   String   @default("")
+  blockers    String   @default("")
+  nextSteps   String   @default("")
+  notes       String   @default("")
+  aiSummary   String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  program Program? @relation(fields: [programId], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// AiConversation — saved chat sessions
+// ─────────────────────────────────────────────
+model AiConversation {
+  id          String   @id @default(cuid())
+  programId   String?
+  title       String   @default("New Conversation")
+  contextType String   @default("GENERAL") // LEARNING, ROADMAP, RECON, FINDING, REPORT, GENERAL
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  program  Program?    @relation(fields: [programId], references: [id])
+  messages AiMessage[]
+}
+
+// ─────────────────────────────────────────────
+// AiMessage — individual messages in a conversation
+// ─────────────────────────────────────────────
+model AiMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String   // user, assistant, system
+  content        String
+  createdAt      DateTime @default(now())
+
+  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────
+// DecisionLog — audit trail of AI-assisted decisions
+// ─────────────────────────────────────────────
+model DecisionLog {
+  id        String   @id @default(cuid())
+  programId String?
+  findingId String?
+  decision  String
+  reason    String   @default("")
+  aiInput   String   @default("")
+  aiOutput  String   @default("")
+  createdAt DateTime @default(now())
+
+  program Program? @relation(fields: [programId], references: [id])
+}
+
+// ─────────────────────────────────────────────
+// AppSetting — key/value store for user settings
+// ─────────────────────────────────────────────
+model AppSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
