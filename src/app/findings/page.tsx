@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
 import { Bug } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import EmptyState from '@/components/ui/EmptyState';

@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import StatusBadge from '@/components/ui/StatusBadge';
 import DeleteButton from '@/components/ui/DeleteButton';

@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import EmptyState from '@/components/ui/EmptyState';
 import { Map, CheckSquare } from 'lucide-react';

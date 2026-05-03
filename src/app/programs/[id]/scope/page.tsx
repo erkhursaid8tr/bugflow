@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { ShieldCheck, Sparkles, Copy, RefreshCw, AlertTriangle } from 'lucide-react';
 import ScopeActions from './ScopeActions';

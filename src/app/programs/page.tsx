@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
+
+export const dynamic = 'force-dynamic';
 import { Plus, FolderKanban, Target, Bug } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import EmptyState from '@/components/ui/EmptyState';
