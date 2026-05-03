@@ -4,7 +4,7 @@ import { askOllama } from '@/lib/ollama';
 import { buildSinglePhasePrompt } from '@/lib/ai-prompts';
 import { safeParseJson } from '@/lib/utils';
 
-export const maxDuration = 3600; // Allow up to 1 hour to prevent 5-minute timeout
+export const maxDuration = 300; // Vercel Hobby max is 300s (5 minutes)
 
 type RouteParams = { params: Promise<{ phaseId: string }> };
 
