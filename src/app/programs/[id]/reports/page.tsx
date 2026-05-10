@@ -10,6 +10,7 @@ import {
 import StatusBadge from '@/components/ui/StatusBadge';
 import EmptyState from '@/components/ui/EmptyState';
 import AiLoadingState from '@/components/ui/AiLoadingState';
+import GuidanceBanner from '@/components/ui/GuidanceBanner';
 import { formatDateTime, statusLabel } from '@/lib/utils';
 
 interface Finding {
@@ -176,6 +177,11 @@ export default function ReportsPage() {
           <Sparkles size={15} /> Generate Report
         </button>
       </div>
+
+      <GuidanceBanner
+        title="What are Reports?"
+        description="Generate professional vulnerability reports from confirmed findings. Choose your style (HackerOne, Bugcrowd, Professional) and let AI draft a submission-ready report you can copy, edit, and submit."
+      />
 
       {/* Report generator */}
       {showGenerator && (

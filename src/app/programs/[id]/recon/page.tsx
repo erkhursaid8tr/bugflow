@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Loader2, Sparkles, ScanSearch, ChevronDown, ChevronUp } from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
 import AiLoadingState from '@/components/ui/AiLoadingState';
+import GuidanceBanner from '@/components/ui/GuidanceBanner';
 import { formatDateTime } from '@/lib/utils';
 import { useParams } from 'next/navigation';
 
@@ -87,6 +88,11 @@ export default function ReconPage() {
           <Plus size={15} /> Add Recon Note
         </button>
       </div>
+
+      <GuidanceBanner
+        title="What are Recon Notes?"
+        description="Paste output from your recon tools here (subfinder, httpx, nuclei, etc). The AI will analyze it and highlight interesting assets, endpoints, technologies, and suggested next steps."
+      />
 
       {showForm && (
         <div className="mb-5 rounded-xl p-5 space-y-3"

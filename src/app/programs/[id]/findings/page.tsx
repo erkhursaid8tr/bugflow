@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Loader2, Sparkles, Bug, Trash2 } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import EmptyState from '@/components/ui/EmptyState';
+import GuidanceBanner from '@/components/ui/GuidanceBanner';
 import { severityColor, statusLabel } from '@/lib/utils';
 import { useParams } from 'next/navigation';
 
@@ -135,6 +136,11 @@ export default function FindingsPage() {
           <Plus size={15} /> New Finding
         </button>
       </div>
+
+      <GuidanceBanner
+        title="What are Findings?"
+        description="Findings track every potential bug you discover — from initial ideas to confirmed vulnerabilities. Log what you find, use AI validation to assess severity, and track the status through to payout."
+      />
 
       {showForm && (
         <div className="mb-6 rounded-xl p-5 space-y-3"

@@ -51,7 +51,7 @@ export default function Sidebar({ isOpen = true, onClose }: { isOpen?: boolean; 
               BugFlow
             </p>
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              Local AI
+              Bug Bounty AI
             </p>
           </div>
         </div>

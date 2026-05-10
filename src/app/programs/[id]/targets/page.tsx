@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Loader2, Trash2, Target as TargetIcon } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import EmptyState from '@/components/ui/EmptyState';
+import GuidanceBanner from '@/components/ui/GuidanceBanner';
 import { statusLabel } from '@/lib/utils';
 import { useParams } from 'next/navigation';
 
@@ -96,6 +97,11 @@ export default function TargetsPage() {
           <Plus size={15} /> Add Target
         </button>
       </div>
+
+      <GuidanceBanner
+        title="What are Targets?"
+        description="Targets are the specific assets (domains, APIs, mobile apps) you're testing within this program. Add them here to organize your attack surface and track progress per asset."
+      />
 
       {/* Add target form */}
       {showForm && (

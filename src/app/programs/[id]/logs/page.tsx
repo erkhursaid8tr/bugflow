@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, Loader2, Sparkles, CalendarDays, Trash2, Clock } from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
+import GuidanceBanner from '@/components/ui/GuidanceBanner';
 import { formatDate } from '@/lib/utils';
 
 interface DailyLog {
@@ -104,6 +105,11 @@ export default function ProgramLogsPage() {
           <Plus size={15} /> New Log
         </button>
       </div>
+
+      <GuidanceBanner
+        title="What are Daily Logs?"
+        description="Track your daily testing sessions here. Log what you tested, tools used, and what you found. The AI can summarize your logs to help you spot patterns and plan your next session."
+      />
 
       {showForm && (
         <div className="mb-5 rounded-xl p-5 space-y-3"

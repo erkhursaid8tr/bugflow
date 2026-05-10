@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import StatusBadge from '@/components/ui/StatusBadge';
 import DeleteButton from '@/components/ui/DeleteButton';
+import GuidanceBanner from '@/components/ui/GuidanceBanner';
 import { formatDateTime, platformColor, truncate } from '@/lib/utils';
 import {
   ExternalLink,
@@ -63,7 +64,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
   return (
     <div className="p-4 md:p-8">
       {/* Program header */}
-      <div className="mb-6 flex items-start justify-between gap-4">
+      <div className="mb-6 flex flex-col sm:flex-row items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-2">
             <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${platformColor(program.platform)}`}>
@@ -71,7 +72,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
             </span>
             <ProgramStatusSelector programId={id} currentStatus={program.status} />
           </div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+          <h1 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
             {program.name}
           </h1>
           {program.programUrl && (
@@ -82,8 +83,11 @@ export default async function ProgramDetailPage({ params }: PageProps) {
               {program.programUrl}
             </a>
           )}
+          <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
+            Updated {formatDateTime(program.updatedAt)}
+          </p>
         </div>
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <DeleteButton
             endpoint={`/api/programs/${id}`}
             itemName="Program"
@@ -96,11 +100,8 @@ export default async function ProgramDetailPage({ params }: PageProps) {
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
           >
             <Pencil size={14} />
-            Edit Program
+            Edit
           </Link>
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            Updated {formatDateTime(program.updatedAt)}
-          </p>
         </div>
       </div>
 
@@ -128,6 +129,19 @@ export default async function ProgramDetailPage({ params }: PageProps) {
           </Link>
         ))}
       </div>
+
+      <GuidanceBanner
+        title="Your Bug Bounty Workflow"
+        description="Follow these steps to systematically test this program and maximize your chances of finding valid bugs."
+        steps={[
+          'Review the Scope — understand what you can and cannot test',
+          'Generate a Roadmap — get an AI-powered step-by-step testing plan',
+          'Follow Each Phase — work through phases one at a time with detailed guidance',
+          'Log Recon Notes — paste tool output and let AI analyze it',
+          'Record Findings — track bugs from idea to confirmed vulnerability',
+          'Generate Reports — create professional submission-ready reports',
+        ]}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main content */}
