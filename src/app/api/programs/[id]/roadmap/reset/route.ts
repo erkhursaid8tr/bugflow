@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireUser } from '@/lib/auth';
 
 type RouteParams = { params: Promise<{ id: string }> };
 
 export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
+    const user = await requireUser(req);
     const { id: programId } = await params;
+
+    // Verify program ownership
+    const program = await prisma.program.findUnique({ where: { id: programId } });
+    if (!program || program.userId !== user.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
 
     // Fetch all phases for this program
     const phases = await prisma.roadmapPhase.findMany({

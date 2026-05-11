@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import { requireServerUser } from '@/lib/auth-page';
 
 export const dynamic = 'force-dynamic';
 import Link from 'next/link';
@@ -9,7 +10,12 @@ import PhaseDetailClient from './PhaseDetailClient';
 type PageProps = { params: Promise<{ id: string; phaseId: string }> };
 
 export default async function PhaseDetailPage({ params }: PageProps) {
+  const user = await requireServerUser();
   const { id, phaseId } = await params;
+
+  // Verify program ownership
+  const program = await prisma.program.findUnique({ where: { id, userId: user.id }, select: { id: true } });
+  if (!program) notFound();
 
   const phase = await prisma.roadmapPhase.findUnique({
     where: { id: phaseId },

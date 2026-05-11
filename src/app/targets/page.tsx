@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { requireServerUser } from '@/lib/auth-page';
 
 export const dynamic = 'force-dynamic';
 import { Target } from 'lucide-react';
@@ -7,7 +8,10 @@ import EmptyState from '@/components/ui/EmptyState';
 import Link from 'next/link';
 
 export default async function GlobalTargetsPage() {
+  const user = await requireServerUser();
+
   const targets = await prisma.target.findMany({
+    where: { program: { userId: user.id } },
     orderBy: [{ priority: 'asc' }, { createdAt: 'desc' }],
     include: { program: { select: { id: true, name: true } } },
   });

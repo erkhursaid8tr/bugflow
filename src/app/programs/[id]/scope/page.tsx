@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import { requireServerUser } from '@/lib/auth-page';
 
 export const dynamic = 'force-dynamic';
 import Link from 'next/link';
@@ -9,10 +10,11 @@ import ScopeActions from './ScopeActions';
 type PageProps = { params: Promise<{ id: string }> };
 
 export default async function ScopePage({ params }: PageProps) {
+  const user = await requireServerUser();
   const { id } = await params;
 
   const program = await prisma.program.findUnique({
-    where: { id },
+    where: { id, userId: user.id },
     include: { scopeItems: { orderBy: { type: 'asc' } } },
   });
 

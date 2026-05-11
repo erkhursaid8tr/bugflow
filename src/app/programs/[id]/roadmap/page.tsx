@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import { requireServerUser } from '@/lib/auth-page';
 
 export const dynamic = 'force-dynamic';
 import Link from 'next/link';
@@ -10,10 +11,11 @@ import RoadmapClient from './RoadmapClient';
 type PageProps = { params: Promise<{ id: string }> };
 
 export default async function RoadmapPage({ params }: PageProps) {
+  const user = await requireServerUser();
   const { id } = await params;
 
   const program = await prisma.program.findUnique({
-    where: { id },
+    where: { id, userId: user.id },
     include: {
       roadmapPhases: {
         orderBy: { order: 'asc' },

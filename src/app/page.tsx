@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { requireServerUser } from '@/lib/auth-page';
 
 export const dynamic = 'force-dynamic';
 import Link from 'next/link';
@@ -17,17 +18,19 @@ import StatusBadge from '@/components/ui/StatusBadge';
 import { formatDateTime, truncate } from '@/lib/utils';
 
 export default async function DashboardPage() {
+  const user = await requireServerUser();
+
   const [programs, findings, targets, reports, logs] = await Promise.all([
-    prisma.program.findMany({ orderBy: { updatedAt: 'desc' } }),
-    prisma.finding.findMany({ orderBy: { updatedAt: 'desc' }, take: 5 }),
-    prisma.target.count(),
-    prisma.report.count(),
-    prisma.dailyLog.findMany({ orderBy: { date: 'desc' }, take: 3 }),
+    prisma.program.findMany({ where: { userId: user.id }, orderBy: { updatedAt: 'desc' } }),
+    prisma.finding.findMany({ where: { program: { userId: user.id } }, orderBy: { updatedAt: 'desc' }, take: 5 }),
+    prisma.target.count({ where: { program: { userId: user.id } } }),
+    prisma.report.count({ where: { finding: { program: { userId: user.id } } } }),
+    prisma.dailyLog.findMany({ where: { userId: user.id }, orderBy: { date: 'desc' }, take: 3 }),
   ]);
 
   const activePrograms = programs.filter((p) => p.status === 'ACTIVE');
   const confirmedFindings = await prisma.finding.count({
-    where: { status: { in: ['CONFIRMED', 'REPORT_DRAFTED', 'REPORTED', 'PAID'] } },
+    where: { program: { userId: user.id }, status: { in: ['CONFIRMED', 'REPORT_DRAFTED', 'REPORTED', 'PAID'] } },
   });
 
   return (

@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { requireServerUser } from '@/lib/auth-page';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -8,7 +9,10 @@ import EmptyState from '@/components/ui/EmptyState';
 import { formatDateTime, platformColor } from '@/lib/utils';
 
 export default async function ProgramsPage() {
+  const user = await requireServerUser();
+
   const programs = await prisma.program.findMany({
+    where: { userId: user.id },
     orderBy: { updatedAt: 'desc' },
     include: {
       _count: { select: { targets: true, findings: true, roadmapPhases: true } },

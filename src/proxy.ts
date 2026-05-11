@@ -1,25 +1,26 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { verifySessionFromCookie, COOKIE_NAME } from '@/lib/auth';
 
-export default function proxy(req: NextRequest) {
-  // If no password is configured, the app remains open (useful for local development)
-  const appPassword = process.env.APP_PASSWORD;
-  if (!appPassword) {
-    return NextResponse.next();
-  }
-
+export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Allow access to the login page and auth endpoints so users can actually log in
+  // Allow access to login/register page and auth endpoints
   if (pathname === '/login' || pathname.startsWith('/api/auth')) {
     return NextResponse.next();
   }
 
-  // Check for our secure cookie
-  const authCookie = req.cookies.get('bugflow_auth');
-  
-  if (!authCookie || authCookie.value !== 'authenticated') {
-    // Redirect unauthenticated users to the sleek new login page
+  // Allow static assets and Next.js internals
+  if (pathname.startsWith('/_next') || pathname === '/favicon.ico') {
+    return NextResponse.next();
+  }
+
+  // Verify JWT session
+  const token = req.cookies.get(COOKIE_NAME)?.value;
+  const userId = await verifySessionFromCookie(token);
+
+  if (!userId) {
+    // Redirect unauthenticated users to login
     const loginUrl = req.nextUrl.clone();
     loginUrl.pathname = '/login';
     return NextResponse.redirect(loginUrl);

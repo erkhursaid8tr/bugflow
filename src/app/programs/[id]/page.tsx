@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import { requireServerUser } from '@/lib/auth-page';
 
 export const dynamic = 'force-dynamic';
 import Link from 'next/link';
@@ -25,10 +26,11 @@ import ProgramStatusSelector from './ProgramStatusSelector';
 type PageProps = { params: Promise<{ id: string }> };
 
 export default async function ProgramDetailPage({ params }: PageProps) {
+  const user = await requireServerUser();
   const { id } = await params;
 
   const program = await prisma.program.findUnique({
-    where: { id },
+    where: { id, userId: user.id },
     include: {
       targets: { orderBy: { priority: 'asc' }, take: 5 },
       findings: { orderBy: { updatedAt: 'desc' }, take: 5 },

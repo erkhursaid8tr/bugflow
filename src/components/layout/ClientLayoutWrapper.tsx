@@ -11,6 +11,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const isAuthPage = pathname === '/login';
 
   useEffect(() => {
@@ -25,6 +26,17 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Fetch current user
+  useEffect(() => {
+    if (isAuthPage) return;
+    fetch('/api/auth')
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data?.user) setUser(data.user);
+      })
+      .catch(() => {});
+  }, [pathname, isAuthPage]);;
 
   // Close sidebar on mobile when navigating
   useEffect(() => {
@@ -72,7 +84,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
         </button>
       )}
 
-      <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)} user={user} />
       
       {/* Mobile Overlay */}
       {isOpen && isMobile && (

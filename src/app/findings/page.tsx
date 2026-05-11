@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { requireServerUser } from '@/lib/auth-page';
 
 export const dynamic = 'force-dynamic';
 import { Bug } from 'lucide-react';
@@ -8,7 +9,10 @@ import Link from 'next/link';
 import { formatDateTime, truncate } from '@/lib/utils';
 
 export default async function GlobalFindingsPage() {
+  const user = await requireServerUser();
+
   const findings = await prisma.finding.findMany({
+    where: { program: { userId: user.id } },
     orderBy: { updatedAt: 'desc' },
     include: { program: { select: { id: true, name: true } } },
   });

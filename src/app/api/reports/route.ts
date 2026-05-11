@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 import { askOllama } from '@/lib/ollama';
@@ -7,11 +8,14 @@ import { buildReportPrompt } from '@/lib/ai-prompts';
 
 // GET /api/reports?findingId=...
 export async function GET(req: NextRequest) {
+  const user = await requireUser(req);
   const { searchParams } = new URL(req.url);
   const findingId = searchParams.get('findingId');
 
   const reports = await prisma.report.findMany({
-    where: findingId ? { findingId } : undefined,
+    where: findingId
+      ? { findingId, finding: { program: { userId: user.id } } }
+      : { finding: { program: { userId: user.id } } },
     orderBy: { updatedAt: 'desc' },
     include: {
       finding: {
@@ -25,6 +29,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/reports — generate a report from a finding
 export async function POST(req: NextRequest) {
+  const user = await requireUser(req);
   const body = await req.json();
   const { findingId, style = 'PROFESSIONAL' } = body;
 
@@ -36,7 +41,7 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  if (!finding) {
+  if (!finding || finding.program.userId !== user.id) {
     return NextResponse.json({ error: 'Finding not found' }, { status: 404 });
   }
 

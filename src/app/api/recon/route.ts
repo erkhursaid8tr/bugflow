@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 import { askOllama } from '@/lib/ollama';
@@ -8,11 +9,14 @@ import { safeParseJson } from '@/lib/utils';
 
 // GET /api/recon?programId=...
 export async function GET(req: NextRequest) {
+  const user = await requireUser(req);
   const { searchParams } = new URL(req.url);
   const programId = searchParams.get('programId');
 
   const notes = await prisma.reconNote.findMany({
-    where: programId ? { programId } : undefined,
+    where: programId
+      ? { programId, program: { userId: user.id } }
+      : { program: { userId: user.id } },
     orderBy: { createdAt: 'desc' },
     include: { target: { select: { name: true } } },
   });
@@ -22,7 +26,14 @@ export async function GET(req: NextRequest) {
 
 // POST /api/recon — create and optionally analyze
 export async function POST(req: NextRequest) {
+  const user = await requireUser(req);
   const body = await req.json();
+
+  // Verify program ownership
+  const program = await prisma.program.findUnique({ where: { id: body.programId } });
+  if (!program || program.userId !== user.id) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
 
   const note = await prisma.reconNote.create({
     data: {

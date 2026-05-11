@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   FolderKanban,
@@ -15,6 +15,8 @@ import {
   CalendarDays,
   ShieldCheck,
   PanelLeftClose,
+  LogOut,
+  User,
 } from 'lucide-react';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 
@@ -28,8 +30,15 @@ const navItems = [
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
-export default function Sidebar({ isOpen = true, onClose }: { isOpen?: boolean; onClose?: () => void }) {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+  user?: { name: string; email: string } | null;
+}
+
+export default function Sidebar({ isOpen = true, onClose, user }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   function isActive(href: string) {
     if (href === '/') return pathname === '/';
@@ -91,6 +100,39 @@ export default function Sidebar({ isOpen = true, onClose }: { isOpen?: boolean; 
           </Link>
         ))}
       </nav>
+
+      {/* User section */}
+      {user && (
+        <div className="mx-3 mb-2 rounded-lg px-3 py-2.5 flex items-center justify-between"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="shrink-0 flex items-center justify-center rounded-full h-6 w-6 text-[10px] font-bold text-white"
+              style={{ background: 'linear-gradient(135deg, #0ea5e9, #7c3aed)' }}>
+              {user.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-medium truncate" style={{ color: 'var(--text-primary)' }}>{user.name}</p>
+              <p className="text-[10px] truncate" style={{ color: 'var(--text-muted)' }}>{user.email}</p>
+            </div>
+          </div>
+          <button
+            onClick={async () => {
+              await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'logout' }),
+              });
+              router.push('/login');
+              router.refresh();
+            }}
+            className="shrink-0 p-1.5 rounded hover:opacity-80 transition-opacity"
+            title="Sign Out"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            <LogOut size={14} />
+          </button>
+        </div>
+      )}
 
       {/* Safety badge */}
       <div className="mx-3 mb-4 rounded-lg px-3 py-2.5"

@@ -3,16 +3,18 @@ import { prisma } from '@/lib/prisma';
 import { askOllama } from '@/lib/ollama';
 import { buildScopeSummaryPrompt, ROADMAP_PHASE_TITLES } from '@/lib/ai-prompts';
 import { safeParseJson } from '@/lib/utils';
+import { requireUser } from '@/lib/auth';
 
 type RouteParams = { params: Promise<{ id: string }> };
 
 // POST /api/programs/[id]/generate-roadmap
 // Generates scope summary + creates 18 roadmap phase shells (no bulk AI for roadmap)
-export async function POST(_req: NextRequest, { params }: RouteParams) {
+export async function POST(req: NextRequest, { params }: RouteParams) {
+  const user = await requireUser(req);
   const { id } = await params;
 
   const program = await prisma.program.findUnique({ where: { id } });
-  if (!program) {
+  if (!program || program.userId !== user.id) {
     return NextResponse.json({ error: 'Program not found' }, { status: 404 });
   }
 
